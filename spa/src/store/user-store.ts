@@ -59,8 +59,12 @@ export class UserStore {
     }
 
     const userId = await this.getUserId();
-    this.householdId = undefined;
-    await this.householdService.leaveHousehold(userId, this.householdId);
+    try {
+      await this.householdService.leaveHousehold(userId, this.householdId);
+    } finally {
+      this.householdId = undefined;
+    }
+
     this.getOrCreateUser();
   };
 
