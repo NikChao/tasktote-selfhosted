@@ -16,3 +16,6 @@
 * `cd ./spa && yarn start`
 * `cd ./api/db && sh generate.sh`
 * `cd ./api && go run main.go`
+
+# Demo
+![Kapture 2025-02-24 at 17 46 28](https://github.com/user-attachments/assets/3b6c510e-d9c9-4c0c-aae2-0b18cf9e31b7)
