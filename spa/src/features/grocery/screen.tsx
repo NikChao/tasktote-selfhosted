@@ -4,6 +4,7 @@ import { FormEvent } from "react";
 import {
   GroceryItemKind,
   GroceryList as GroceryListModel,
+  ScheduledDays,
   StoreName,
 } from "../../services/grocery-service";
 import { poll } from "../../utils/poll";
@@ -29,6 +30,7 @@ interface GroceryScreenProps {
   initializeGroceryList(householdId: string): void;
   fetchGroceries(householdId: string): void;
   toggleStore(storeName: StoreName): void;
+  saveScheduledDays(id: string, scheduledDays: ScheduledDays): void;
 }
 
 export function GroceryScreen({
@@ -45,6 +47,7 @@ export function GroceryScreen({
   createItem,
   initializeGroceryList,
   fetchGroceries,
+  saveScheduledDays
 }: GroceryScreenProps) {
   useEffect(() => {
     initializeGroceryList(householdId);
@@ -112,6 +115,7 @@ export function GroceryScreen({
             groceries={groceryList.items}
             layout={groceryList.layout}
             checkGroceryItem={checkGroceryItem}
+            saveTaskScheduledDays={saveScheduledDays}
           />
         </Box>
       </Stack>

@@ -70,7 +70,6 @@ const joinHouseholdRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/households/join/$householdId",
   component: function JoinHousehold() {
-    /** @ts-ignore */
     const { householdId } = joinHouseholdRoute.useParams();
     const navigate = useNavigate();
 
@@ -80,7 +79,6 @@ const joinHouseholdRoute = createRoute({
   },
 });
 
-/** @ts-ignore */
 const routeTree = rootRoute.addChildren([
   indexRoute,
   joinHouseholdRoute,

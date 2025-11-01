@@ -1,10 +1,11 @@
-import { makeAutoObservable } from "mobx";
+import { action, makeAutoObservable } from "mobx";
 import {
   ALL_STORES,
   GroceryItem,
   GroceryItemKind,
   GroceryList,
   GroceryService,
+  ScheduledDays,
   StoreName,
 } from "../../services/grocery-service";
 import { ChangeEvent, FormEvent } from "react";
@@ -183,4 +184,17 @@ export class GroceryListStore {
 
     this.fetchGroceryList(this.userStore.effectiveHouseholdId);
   };
+
+  saveTaskScheduledDays = action((id: string, schduledDays: ScheduledDays) => {
+    this.groceryList = {
+      ...this.groceryList,
+      items: this.groceryList.items.map(item => {
+        if (item.kind === 'Task' && item.id === id) {
+          item.scheduledDays = schduledDays;
+        }
+
+        return item;
+      })
+    }
+  })
 }

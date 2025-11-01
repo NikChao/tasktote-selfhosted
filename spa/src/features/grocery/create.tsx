@@ -25,6 +25,7 @@ export function createGroceryScreen(
       createItem={store.createItem}
       fetchGroceries={store.fetchGroceriesIfTabFocussed}
       initializeGroceryList={store.initializeGroceryList}
+      saveScheduledDays={store.saveTaskScheduledDays}
     />
   ));
 }

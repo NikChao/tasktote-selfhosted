@@ -1,5 +1,38 @@
 import { ApiService } from "./api-service";
 
+export const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+export const MONTHS = {
+  'JAN': { days: 31 },
+  'FEB': { days: 28 },
+  'MAR': { days: 31 },
+  'APR': { days: 30 },
+  'MAY': { days: 31 },
+  'JUN': { days: 30 },
+  'JUL': { days: 31 },
+  'AUG': { days: 31 },
+  'SEP': { days: 30 },
+  'OCT': { days: 31 },
+  'NOV': { days: 30 },
+  'DEC': { days: 31 },
+}
+
+export const DEFAULT_SCHEDULED_DAYS = {
+  'JAN': [],
+  'FEB': [],
+  'MAR': [],
+  'APR': [],
+  'MAY': [],
+  'JUN': [],
+  'JUL': [],
+  'AUG': [],
+  'SEP': [],
+  'OCT': [],
+  'NOV': [],
+  'DEC': [],
+}
+
+export type ScheduledDays = Record<keyof typeof MONTHS, number[]>
+
 export type GroceryItemKind = "Grocery" | "Task"
 export interface GroceryItem {
   householdId: string;
@@ -7,6 +40,7 @@ export interface GroceryItem {
   name: string;
   kind: GroceryItemKind;
   checked: boolean;
+  scheduledDays?: ScheduledDays;
 }
 
 type LayoutBlockType = "GroceryItemId" | "Text";

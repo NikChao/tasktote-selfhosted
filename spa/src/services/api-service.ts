@@ -9,18 +9,18 @@ export class ApiService {
     return this.makeRequest<T>(url, "DELETE");
   }
 
-  public post<T = void>(url: string, body?: any): Promise<T> {
+  public post<T = void>(url: string, body?: unknown): Promise<T> {
     return this.makeRequest(url, "POST", body);
   }
 
-  public put<T = void>(url: string, body?: any): Promise<T> {
+  public put<T = void>(url: string, body?: unknown): Promise<T> {
     return this.makeRequest(url, "PUT", body);
   }
 
   private async makeRequest<T = void>(
     url: string,
     method: string,
-    body?: any,
+    body?: unknown,
   ): Promise<T> {
     const options: RequestInit = {
       method,

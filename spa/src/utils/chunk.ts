@@ -3,6 +3,6 @@ export function chunk(fileList: FileList, chunkSize: number): File[][] {
 
   return Array.from(
     { length: Math.ceil(files.length / chunkSize) },
-    (_: any, i: number) => files.slice(i * chunkSize, i * chunkSize + chunkSize)
+    (_: unknown, i: number) => files.slice(i * chunkSize, i * chunkSize + chunkSize)
   );
 }
