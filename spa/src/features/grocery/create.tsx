@@ -10,17 +10,19 @@ export function createGroceryScreen(
 ) {
   return observer(() => (
     <GroceryScreen
+      mode={store.mode}
       selectedStores={store.selectedStores}
       toggleStore={store.toggleStore}
       endIcons={endIcons}
       groceryItemText={store.groceryItemText}
       isUpdating={store.isUpdating}
-      groceryList={store.groceryList}
+      groceryList={store.filteredGroceryList}
       householdId={userStore.effectiveHouseholdId}
+      setMode={store.setMode}
       handleGroceryItemTextChange={store.handleGroceryItemTextChange}
       checkGroceryItem={store.checkGroceryItem}
       clearCheckedItems={store.clearCheckedItems}
-      createGroceryItem={store.createGroceryItem}
+      createItem={store.createItem}
       fetchGroceries={store.fetchGroceriesIfTabFocussed}
       initializeGroceryList={store.initializeGroceryList}
     />

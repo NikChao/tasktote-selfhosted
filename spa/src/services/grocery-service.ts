@@ -1,9 +1,11 @@
 import { ApiService } from "./api-service";
 
+export type GroceryItemKind = "Grocery" | "Task"
 export interface GroceryItem {
   householdId: string;
   id: string;
   name: string;
+  kind: GroceryItemKind;
   checked: boolean;
 }
 
@@ -52,7 +54,7 @@ export interface GroceryItemData {
 }
 
 export class GroceryService {
-  constructor(private readonly apiService: ApiService) {}
+  constructor(private readonly apiService: ApiService) { }
 
   public getGroceryList(householdId: string): Promise<GroceryList> {
     return this.apiService.get<GroceryList>(`/groceries/${householdId}`);
@@ -62,11 +64,24 @@ export class GroceryService {
     const groceryItem: GroceryItem = {
       id: "",
       name,
+      kind: "Grocery",
       householdId,
       checked: false,
     };
 
     return this.apiService.put("/groceries", groceryItem);
+  }
+
+  public createTask(name: string, householdId: string): Promise<void> {
+    const task: GroceryItem = {
+      id: "",
+      name,
+      kind: "Task",
+      householdId,
+      checked: false,
+    };
+
+    return this.apiService.put("/groceries", task);
   }
 
   public updateGroceryItem(groceryItem: GroceryItem): Promise<void> {

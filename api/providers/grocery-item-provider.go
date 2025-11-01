@@ -30,7 +30,7 @@ func CreateGroceryItem(groceryItem models.GroceryItem) error {
 		database.CreateUserHousehold(groceryItem.HouseholdId)
 	}
 
-	_, err := database.CreateGroceryItem(groceryItem.Name, groceryItem.Category, groceryItem.HouseholdId)
+	_, err := database.CreateGroceryItem(groceryItem.Name, groceryItem.Kind, groceryItem.Category, groceryItem.HouseholdId)
 
 	return err
 }

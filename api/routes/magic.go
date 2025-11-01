@@ -58,6 +58,7 @@ func GroceryMagic(c *gin.Context) {
 		groceryItems = append(groceryItems, models.GroceryItem{
 			Id:          item.Id,
 			Name:        item.Name,
+			Kind:        item.Kind,
 			HouseholdId: item.HouseholdId,
 			Checked:     item.Checked,
 		})

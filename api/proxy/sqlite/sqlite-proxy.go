@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -35,15 +35,12 @@ func NewDB() (*DB, error) {
 
 // Household Methods
 func (db *DB) CreateHousehold(name string) (*models.Household, error) {
-	_, err := db.Exec("INSERT INTO households (name) VALUES (?)", name)
+	uuidv7, _ := uuid.NewV7()
+	id := uuidv7.String()
+
+	_, err := db.Exec("INSERT INTO households (id, name) VALUES (?, ?)", id, name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create household: %w", err)
-	}
-
-	var id string
-	err = db.QueryRow("SELECT id FROM households WHERE rowid = last_insert_rowid()").Scan(&id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get household Id: %w", err)
 	}
 
 	return &models.Household{Id: id, Name: name}, nil
@@ -344,34 +341,30 @@ func (db *DB) GetUserHouseholds(userId string) ([]models.Household, error) {
 // Grocery Item Methods
 
 // CreateGroceryItem adds a new grocery item
-func (db *DB) CreateGroceryItem(name string, category string, householdId string) (*models.GroceryItem, error) {
+func (db *DB) CreateGroceryItem(name string, kind models.GroceryItemKind, category string, householdId string) (*models.GroceryItem, error) {
 	// First check if the household exists
 	if _, err := db.GetHousehold(householdId); err != nil {
 		return nil, err
 	}
 
-	_, err := db.Exec("INSERT INTO grocery_items (name, category, household_id) VALUES (?, ?, ?)",
-		name, category, householdId)
+	uuidv7, _ := uuid.NewV7()
+	id := uuidv7.String()
+
+	_, err := db.Exec("INSERT INTO grocery_items (id, name, kind, category, household_id) VALUES (?, ?, ?, ?, ?)",
+		id, name, kind, category, householdId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create grocery item: %w", err)
 	}
 
-	// Get the last inserted Id
-	var id string
-	err = db.QueryRow("SELECT id FROM grocery_items WHERE rowid = last_insert_rowid()").Scan(&id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get grocery item Id: %w", err)
-	}
-
-	return &models.GroceryItem{Id: id, Name: name, Category: category, HouseholdId: householdId}, nil
+	return &models.GroceryItem{Id: id, Name: name, Kind: kind, Category: category, HouseholdId: householdId}, nil
 }
 
 // GetGroceryItem retrieves a grocery item by Id
 func (db *DB) GetGroceryItem(id string) (*models.GroceryItem, error) {
 	var item models.GroceryItem
 	var category sql.NullString
-	err := db.QueryRow("SELECT id, name, category, household_id FROM grocery_items WHERE id = ?", id).
-		Scan(&item.Id, &item.Name, &category, &item.HouseholdId)
+	err := db.QueryRow("SELECT id, name, kind, category, household_id FROM grocery_items WHERE id = ?", id).
+		Scan(&item.Id, &item.Name, &item.Kind, &category, &item.HouseholdId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("grocery item not found")
@@ -440,7 +433,7 @@ func (db *DB) ListGroceryItemsByHousehold(householdId string) ([]models.GroceryI
 		return nil, err
 	}
 
-	rows, err := db.Query("SELECT id, name, category, household_id, checked FROM grocery_items WHERE household_id = ? ORDER BY name", householdId)
+	rows, err := db.Query("SELECT id, name, kind, category, household_id, checked FROM grocery_items WHERE household_id = ? ORDER BY name", householdId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list grocery items: %w", err)
 	}
@@ -450,7 +443,7 @@ func (db *DB) ListGroceryItemsByHousehold(householdId string) ([]models.GroceryI
 	for rows.Next() {
 		var i models.GroceryItem
 		var category sql.NullString
-		if err := rows.Scan(&i.Id, &i.Name, &category, &i.HouseholdId, &i.Checked); err != nil {
+		if err := rows.Scan(&i.Id, &i.Name, &i.Kind, &category, &i.HouseholdId, &i.Checked); err != nil {
 			return nil, fmt.Errorf("failed to scan grocery item row: %w", err)
 		}
 		if category.Valid {

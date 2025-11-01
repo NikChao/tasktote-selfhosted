@@ -26,6 +26,7 @@ CREATE TABLE household_users (
 CREATE TABLE grocery_items (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
+    kind TEXT NOT NULL,
     category TEXT,
     checked BOOLEAN DEFAULT FALSE,
     household_id TEXT NOT NULL,

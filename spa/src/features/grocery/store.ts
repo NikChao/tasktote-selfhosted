@@ -2,6 +2,7 @@ import { makeAutoObservable } from "mobx";
 import {
   ALL_STORES,
   GroceryItem,
+  GroceryItemKind,
   GroceryList,
   GroceryService,
   StoreName,
@@ -13,6 +14,7 @@ const MAGIC_ENABLED_STORAGE_KEY = "MAGIC_ENABLED";
 export const RAW_DATA_SELECTED_STORES_KEY = "RAW_DATA_SELECTED_STORES";
 
 export class GroceryListStore {
+  mode: GroceryItemKind = "Grocery";
   isFetching = false;
   isUpdating = false;
   magicEnabled = true;
@@ -33,6 +35,17 @@ export class GroceryListStore {
     }
 
     this.selectedStores = this.getStoredSelectedStores();
+  }
+
+  get filteredGroceryList(): GroceryList {
+    const items = this.groceryList.items.filter(({ kind }) => kind === this.mode);
+    const layout = this.groceryList.layout.filter(block => {
+      if (block.type !== 'GroceryItemId') {
+        return true;
+      }
+      return items.map(item => item.id).includes(block.value);
+    })
+    return { items, layout };
   }
 
   initializeGroceryList = (householdId: string) => {
@@ -70,6 +83,10 @@ export class GroceryListStore {
     }
   };
 
+  setMode = (mode: GroceryItemKind) => {
+    this.mode = mode;
+  }
+
   magic = async (householdId: string) => {
     this.magicEnabled = !this.magicEnabled;
     this.storage.setItem(
@@ -80,20 +97,29 @@ export class GroceryListStore {
     this.fetchGroceryList(householdId);
   };
 
-  createGroceryItem =
-    (householdId: string) => async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!this.groceryItemText) {
-        return;
-      }
+  createItem = (householdId: string) => async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!this.groceryItemText) {
+      return;
+    }
 
+    if (this.mode === "Grocery") {
       await this.groceryService.createGroceryItem(
         this.groceryItemText,
         householdId,
       );
-      await this.fetchGroceryList(householdId);
-      this.groceryItemText = "";
-    };
+    } else if (this.mode === "Task") {
+      await this.groceryService.createTask(
+        this.groceryItemText,
+        householdId
+      );
+    } else {
+      this.mode satisfies never;
+    }
+
+    await this.fetchGroceryList(householdId);
+    this.groceryItemText = "";
+  };
 
   addGroceryItems = async (groceryItems: string[]) => {
     const householdId = this.userStore.effectiveHouseholdId;

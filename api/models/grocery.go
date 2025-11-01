@@ -6,10 +6,17 @@ type BatchDeleteGroceryItemsRequest struct {
 	ItemsToDelete []GroceryItem `json:"itemsToDelete"`
 }
 
+type GroceryItemKind string
+const (
+	GroceryKind GroceryItemKind = "Grocery"
+	TaskKind    GroceryItemKind = "Task"
+)
+
 type GroceryItem struct {
 	HouseholdId   string          `json:"householdId"`
 	Id            string          `json:"id"`
 	Name          string          `json:"name"`
+	Kind          GroceryItemKind `json:"kind"`
 	StoreOverride StorePreference `json:"storeOverride"`
 	Category      string          `json:"category"`
 	Checked       bool            `json:"checked"`
@@ -35,7 +42,8 @@ type GroceryList struct {
 
 // Function to generate UUID for ID field
 func (item *GroceryItem) GenerateID() {
-	item.Id = uuid.NewString()
+	uuidv7, _ := uuid.NewV7()
+	item.Id = uuidv7.String()
 }
 
 func (item *GroceryItem) GetOrGenerateID() string {

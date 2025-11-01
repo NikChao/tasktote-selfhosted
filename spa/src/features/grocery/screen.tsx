@@ -1,7 +1,8 @@
 import { ChangeEvent, useEffect } from "react";
-import { Box, Button, Input, Stack, Typography } from "@mui/joy";
+import { Box, Button, Input, Stack, Typography, TypographyProps } from "@mui/joy";
 import { FormEvent } from "react";
 import {
+  GroceryItemKind,
   GroceryList as GroceryListModel,
   StoreName,
 } from "../../services/grocery-service";
@@ -10,35 +11,41 @@ import { GroceryList } from "./grocery-list";
 
 const POLL_INTERVAL = 8000;
 
-export function GroceryScreen({
-  groceryItemText,
-  groceryList,
-  isUpdating,
-  endIcons,
-  householdId,
-  handleGroceryItemTextChange,
-  checkGroceryItem,
-  clearCheckedItems,
-  createGroceryItem,
-  initializeGroceryList,
-  fetchGroceries,
-}: {
+interface GroceryScreenProps {
+  mode: GroceryItemKind
   groceryItemText: string;
   isUpdating: boolean;
   householdId: string;
   endIcons: React.ReactNode;
   groceryList: GroceryListModel;
   selectedStores: StoreName[];
+  setMode: (mode: GroceryItemKind) => void;
   handleGroceryItemTextChange(e: ChangeEvent<HTMLInputElement>): void;
   checkGroceryItem(id: string): void;
   clearCheckedItems(householdId: string): void;
-  createGroceryItem(
+  createItem(
     householdId: string,
   ): (e: FormEvent<HTMLFormElement>) => void;
   initializeGroceryList(householdId: string): void;
   fetchGroceries(householdId: string): void;
   toggleStore(storeName: StoreName): void;
-}) {
+}
+
+export function GroceryScreen({
+  mode,
+  groceryItemText,
+  groceryList,
+  isUpdating,
+  endIcons,
+  householdId,
+  setMode,
+  handleGroceryItemTextChange,
+  checkGroceryItem,
+  clearCheckedItems,
+  createItem,
+  initializeGroceryList,
+  fetchGroceries,
+}: GroceryScreenProps) {
   useEffect(() => {
     initializeGroceryList(householdId);
     const interval = poll(() => fetchGroceries(householdId), POLL_INTERVAL);
@@ -47,6 +54,24 @@ export function GroceryScreen({
       clearInterval(interval);
     };
   }, [householdId, initializeGroceryList, fetchGroceries]);
+
+  function getTitleProps(kind: GroceryItemKind): Partial<TypographyProps> {
+    const baseProps: Partial<TypographyProps> = {
+      sx: {
+        cursor: 'pointer',
+      },
+      style: {},
+      onClick: () => setMode(kind)
+    }
+
+    if (kind !== mode) {
+      baseProps.style!.opacity = 0.6;
+      return baseProps;
+    }
+
+    baseProps.fontStyle = 'italic';
+    return baseProps;
+  }
 
   return (
     <Stack
@@ -63,19 +88,22 @@ export function GroceryScreen({
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography level="h3">Groceries</Typography>
+            <Box display="flex" gap="8px">
+              <Typography level="h3" color="primary" {...getTitleProps("Grocery")}>Groceries</Typography>
+              <Typography level="h3" color="success" {...getTitleProps("Task")}>Tasks</Typography>
+            </Box>
             {endIcons}
           </Box>
           <Box
             component="form"
-            onSubmit={createGroceryItem(householdId)}
+            onSubmit={createItem(householdId)}
             pt="8px"
             boxSizing="border-box"
           >
             <Input
               value={groceryItemText}
               onChange={handleGroceryItemTextChange}
-              placeholder="Add a grocery item or recipe url!"
+              placeholder={mode === "Grocery" ? "Add a grocery item or recipe url!" : "Add some tasks!"}
             />
           </Box>
         </Stack>
