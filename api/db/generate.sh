@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ ! -f "./init.sql" ]; then
   echo "Error: init.sql file not found in ./api/db"
   exit 1

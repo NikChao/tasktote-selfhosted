@@ -13,12 +13,25 @@ func GetGroceryItems(householdId string) ([]models.GroceryItem, error) {
 	defer database.Close()
 
 	_, err := GetOrCreateHousehold(householdId)
-
 	if err != nil {
 		return nil, fmt.Errorf("Could not get or create household %w: %w", householdId, err)
 	}
 
 	return database.ListGroceryItemsByHousehold(householdId)
+}
+
+func GetSchedule(taskIds []string) ([]models.TaskScheduleItem, error) {
+	database, _ := db.NewDB()
+	defer database.Close()
+
+	return database.GetTaskSchedule(taskIds)
+}
+
+func CreateTaskSchedule(request models.ScheduleTaskRequest) error {
+	database, _ := db.NewDB()
+	defer database.Close()
+
+	return database.CreateTaskSchedule(request.TaskId, request.Dates)
 }
 
 func CreateGroceryItem(groceryItem models.GroceryItem) error {

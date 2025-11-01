@@ -1,39 +1,44 @@
 import { ApiService } from "./api-service";
 
-export const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+export const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 export const MONTHS = {
-  'JAN': { days: 31 },
-  'FEB': { days: 28 },
-  'MAR': { days: 31 },
-  'APR': { days: 30 },
-  'MAY': { days: 31 },
-  'JUN': { days: 30 },
-  'JUL': { days: 31 },
-  'AUG': { days: 31 },
-  'SEP': { days: 30 },
-  'OCT': { days: 31 },
-  'NOV': { days: 30 },
-  'DEC': { days: 31 },
-}
+  "JAN": { days: 31 },
+  "FEB": { days: 28 },
+  "MAR": { days: 31 },
+  "APR": { days: 30 },
+  "MAY": { days: 31 },
+  "JUN": { days: 30 },
+  "JUL": { days: 31 },
+  "AUG": { days: 31 },
+  "SEP": { days: 30 },
+  "OCT": { days: 31 },
+  "NOV": { days: 30 },
+  "DEC": { days: 31 },
+};
 
 export const DEFAULT_SCHEDULED_DAYS = {
-  'JAN': [],
-  'FEB': [],
-  'MAR': [],
-  'APR': [],
-  'MAY': [],
-  'JUN': [],
-  'JUL': [],
-  'AUG': [],
-  'SEP': [],
-  'OCT': [],
-  'NOV': [],
-  'DEC': [],
+  "JAN": [],
+  "FEB": [],
+  "MAR": [],
+  "APR": [],
+  "MAY": [],
+  "JUN": [],
+  "JUL": [],
+  "AUG": [],
+  "SEP": [],
+  "OCT": [],
+  "NOV": [],
+  "DEC": [],
+};
+
+export type ScheduledDays = Record<keyof typeof MONTHS, number[]>;
+
+export interface ScheduleTaskRequest {
+  taskId: string;
+  dates: string[];
 }
 
-export type ScheduledDays = Record<keyof typeof MONTHS, number[]>
-
-export type GroceryItemKind = "Grocery" | "Task"
+export type GroceryItemKind = "Grocery" | "Task";
 export interface GroceryItem {
   householdId: string;
   id: string;
@@ -88,7 +93,7 @@ export interface GroceryItemData {
 }
 
 export class GroceryService {
-  constructor(private readonly apiService: ApiService) { }
+  constructor(private readonly apiService: ApiService) {}
 
   public getGroceryList(householdId: string): Promise<GroceryList> {
     return this.apiService.get<GroceryList>(`/groceries/${householdId}`);
@@ -125,7 +130,7 @@ export class GroceryService {
   public magic(
     householdId: string,
     groceryList: GroceryList,
-    preferredStores: StoreName[]
+    preferredStores: StoreName[],
   ): Promise<GroceryMagicResponse> {
     const request: GroceryMagicRequest = {
       householdId,
@@ -135,12 +140,12 @@ export class GroceryService {
 
     return this.apiService.post<GroceryMagicResponse>(
       "/groceries/magic",
-      request
+      request,
     );
   }
 
   public async clearCheckedGroceryItems(
-    groceries: GroceryItem[]
+    groceries: GroceryItem[],
   ): Promise<void> {
     const itemsToDelete = groceries.filter(({ checked }) => checked);
 
@@ -153,5 +158,17 @@ export class GroceryService {
     };
 
     return this.apiService.post("/groceries/batchDelete", request);
+  }
+
+  public async scheduleTask(
+    taskId: string,
+    dates: string[],
+  ): Promise<void> {
+    const request: ScheduleTaskRequest = {
+      taskId,
+      dates,
+    };
+
+    return this.apiService.post("/tasks/schedule", request);
   }
 }

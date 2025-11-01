@@ -33,6 +33,12 @@ CREATE TABLE grocery_items (
     FOREIGN KEY (household_id) REFERENCES households(id) ON DELETE CASCADE
 );
 
+CREATE TABLE scheduled_items (
+  task_id TEXT NOT NULL,
+  date TEXT NOT NULL,
+  FOREIGN KEY (task_id) REFERENCES grocery_items(id) ON DELETE CASCADE
+);
+
 -- Create an insert trigger for households to generate UUID
 CREATE TRIGGER insert_household_id
 AFTER INSERT ON households

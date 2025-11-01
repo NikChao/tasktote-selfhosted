@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -457,6 +458,55 @@ func (db *DB) ListGroceryItemsByHousehold(householdId string) ([]models.GroceryI
 	}
 
 	return items, nil
+}
+
+func (db *DB) GetTaskSchedule(taskIds []string) ([]models.TaskScheduleItem, error) {
+	placeholders := strings.Repeat("?,", len(taskIds))
+	placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
+
+	args := make([]interface{}, len(taskIds))
+	for i, id := range taskIds {
+		args[i] = id
+	}
+
+	query := fmt.Sprintf("SELECT task_id, date from scheduled_items WHERE task_id in (%s)", placeholders)
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get schedule for task: %w", err)
+	}
+	defer rows.Close()
+
+	items := make([]models.TaskScheduleItem, 0)
+	for rows.Next() {
+		var item models.TaskScheduleItem
+		if err := rows.Scan(&item.TaskId, &item.Date); err != nil {
+			return nil, fmt.Errorf("failed to scan scheduled item: %w", err)
+		}
+		items = append(items, item)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error in row iteration: %w", err)
+	}
+
+	return items, nil
+}
+
+func (db *DB) CreateTaskSchedule(taskId string, dates []string) error {
+	_, err := db.Exec("DELETE FROM scheduled_items WHERE task_id = ?", taskId)
+	if err != nil {
+		return fmt.Errorf("failed to delete scheduled items: %w", err)
+	}
+
+	for _, date := range dates {
+		_, err := db.Exec("INSERT INTO scheduled_items (task_id, date) VALUES (?, ?)", taskId, date)
+		if err != nil {
+			return fmt.Errorf("failed to scheduled item: %w", err)
+		}
+
+	}
+
+	return nil
 }
 
 // Close closes the database connection

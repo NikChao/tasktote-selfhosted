@@ -24,6 +24,7 @@ func GroceryMagic(c *gin.Context) {
 		return
 	}
 
+	var taskIds []string
 	var groceryItems []models.GroceryItem
 	layoutBlockMap := make(map[models.StorePreference][]models.LayoutBlock)
 
@@ -62,6 +63,10 @@ func GroceryMagic(c *gin.Context) {
 			HouseholdId: item.HouseholdId,
 			Checked:     item.Checked,
 		})
+
+		if item.Kind == models.TaskKind {
+			taskIds = append(taskIds, item.Id)
+		}
 	}
 
 	wg.Wait()
@@ -76,8 +81,16 @@ func GroceryMagic(c *gin.Context) {
 		Layout: layout,
 	}
 
+	schedule, scheduleFetchError := providers.GetSchedule(taskIds)
+
+	if scheduleFetchError != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": scheduleFetchError.Error()})
+		return
+	}
+
 	response := models.GroceryMagicResponse{
 		GroceryList: groceryList,
+		Schedule:    schedule,
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -108,7 +121,6 @@ func parseItemName(itemName string) string {
 
 func parseUrl(itemName string) (string, bool) {
 	u, err := url.ParseRequestURI(itemName)
-
 	if err != nil {
 		return "", false
 	}

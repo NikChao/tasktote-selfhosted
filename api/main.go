@@ -26,6 +26,7 @@ func init() {
 		apiRoutes.DELETE("/groceries/:householdId/:id", routes.DeleteGroceryItem)
 		apiRoutes.POST("/groceries/batchDelete", routes.BatchDeleteGroceryItems)
 		apiRoutes.POST("/groceries/magic", routes.GroceryMagic)
+		apiRoutes.POST("/tasks/schedule", routes.ScheduleTask)
 
 		// Households
 		apiRoutes.PUT("/households", routes.CreateHousehold)

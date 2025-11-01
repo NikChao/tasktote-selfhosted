@@ -39,13 +39,15 @@ export class GroceryListStore {
   }
 
   get filteredGroceryList(): GroceryList {
-    const items = this.groceryList.items.filter(({ kind }) => kind === this.mode);
-    const layout = this.groceryList.layout.filter(block => {
-      if (block.type !== 'GroceryItemId') {
+    const items = this.groceryList.items?.filter(({ kind }) =>
+      kind === this.mode
+    );
+    const layout = this.groceryList.layout?.filter((block) => {
+      if (block.type !== "GroceryItemId") {
         return true;
       }
-      return items.map(item => item.id).includes(block.value);
-    })
+      return items.map((item) => item.id).includes(block.value);
+    });
     return { items, layout };
   }
 
@@ -86,7 +88,7 @@ export class GroceryListStore {
 
   setMode = (mode: GroceryItemKind) => {
     this.mode = mode;
-  }
+  };
 
   magic = async (householdId: string) => {
     this.magicEnabled = !this.magicEnabled;
@@ -98,29 +100,30 @@ export class GroceryListStore {
     this.fetchGroceryList(householdId);
   };
 
-  createItem = (householdId: string) => async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!this.groceryItemText) {
-      return;
-    }
+  createItem =
+    (householdId: string) => async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!this.groceryItemText) {
+        return;
+      }
 
-    if (this.mode === "Grocery") {
-      await this.groceryService.createGroceryItem(
-        this.groceryItemText,
-        householdId,
-      );
-    } else if (this.mode === "Task") {
-      await this.groceryService.createTask(
-        this.groceryItemText,
-        householdId
-      );
-    } else {
-      this.mode satisfies never;
-    }
+      if (this.mode === "Grocery") {
+        await this.groceryService.createGroceryItem(
+          this.groceryItemText,
+          householdId,
+        );
+      } else if (this.mode === "Task") {
+        await this.groceryService.createTask(
+          this.groceryItemText,
+          householdId,
+        );
+      } else {
+        this.mode satisfies never;
+      }
 
-    await this.fetchGroceryList(householdId);
-    this.groceryItemText = "";
-  };
+      await this.fetchGroceryList(householdId);
+      this.groceryItemText = "";
+    };
 
   addGroceryItems = async (groceryItems: string[]) => {
     const householdId = this.userStore.effectiveHouseholdId;
@@ -185,16 +188,27 @@ export class GroceryListStore {
     this.fetchGroceryList(this.userStore.effectiveHouseholdId);
   };
 
-  saveTaskScheduledDays = action((id: string, schduledDays: ScheduledDays) => {
+  saveTaskScheduledDays = action((id: string, scheduledDays: ScheduledDays) => {
+    const currentYear = new Date().getFullYear();
+
+    const dates: string[] = Object.entries(scheduledDays).flatMap((entry) => {
+      const [month, days] = entry;
+      return days.map((day) => {
+        return new Date(`${day + 1}/${month}/${currentYear}`).toISOString();
+      });
+    });
+
+    this.groceryService.scheduleTask(id, dates);
+
     this.groceryList = {
       ...this.groceryList,
-      items: this.groceryList.items.map(item => {
-        if (item.kind === 'Task' && item.id === id) {
-          item.scheduledDays = schduledDays;
+      items: this.groceryList.items.map((item) => {
+        if (item.kind === "Task" && item.id === id) {
+          item.scheduledDays = scheduledDays;
         }
 
         return item;
-      })
-    }
-  })
+      }),
+    };
+  });
 }

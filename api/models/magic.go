@@ -7,5 +7,6 @@ type GroceryMagicRequest struct {
 }
 
 type GroceryMagicResponse struct {
-	GroceryList GroceryList `json:"groceryList"`
+	GroceryList GroceryList        `json:"groceryList"`
+	Schedule    []TaskScheduleItem `json:"schedule"`
 }
