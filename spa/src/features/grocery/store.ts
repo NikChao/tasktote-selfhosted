@@ -187,16 +187,21 @@ export class GroceryListStore {
     this.fetchGroceryList(this.userStore.effectiveHouseholdId);
   };
 
-  saveTaskScheduledDays = async (id: string, scheduledDays: ScheduledDays) => {
+  saveTaskScheduledDays = action((id: string, scheduledDays: ScheduledDays) => {
     const currentYear = new Date().getFullYear();
 
     const dates: string[] = Object.entries(scheduledDays).flatMap((entry) => {
       const [month, days] = entry;
       return days.map((day) => {
-        return new Date(`${day}/${month}/${currentYear}`).toISOString();
+        return new Date(`${Math.max(day, 1)}/${month}/${currentYear}`)
+          .toISOString();
       });
     });
 
-    await this.groceryService.scheduleTask(id, dates);
-  };
+    this.schedule = [
+      ...this.schedule.filter(({ taskId }) => taskId != id),
+      ...dates.map((date) => ({ taskId: id, date })),
+    ];
+    this.groceryService.scheduleTask(id, dates);
+  });
 }

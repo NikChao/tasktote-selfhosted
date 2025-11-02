@@ -47,6 +47,8 @@ export function Calendar({
       month: Object.keys(DEFAULT_SCHEDULED_DAYS)[date.getMonth()]!,
     };
   }).reduce((prev, accum) => {
+    prev[accum.month as keyof ScheduledDays] =
+      prev[accum.month as keyof ScheduledDays] ?? [];
     prev[accum.month as keyof ScheduledDays].push(accum.date);
     return prev;
   }, DEFAULT_SCHEDULED_DAYS);
