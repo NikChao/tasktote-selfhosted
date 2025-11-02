@@ -6,7 +6,7 @@ import { GroceryListStore } from "./store";
 export function createGroceryScreen(
   store: GroceryListStore,
   userStore: UserStore,
-  endIcons: React.ReactNode
+  endIcons: React.ReactNode,
 ) {
   return observer(() => (
     <GroceryScreen
@@ -26,6 +26,7 @@ export function createGroceryScreen(
       fetchGroceries={store.fetchGroceriesIfTabFocussed}
       initializeGroceryList={store.initializeGroceryList}
       saveScheduledDays={store.saveTaskScheduledDays}
+      schedule={store.schedule}
     />
   ));
 }

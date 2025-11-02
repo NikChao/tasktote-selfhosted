@@ -1,16 +1,34 @@
-import { Box, Checkbox, DialogTitle, IconButton, ListItem, ListItemButton, Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
-import { DEFAULT_SCHEDULED_DAYS, ScheduledDays, GroceryItem as Task } from "../../../services/grocery-service";
+import {
+  Box,
+  Checkbox,
+  DialogTitle,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  Modal,
+  ModalClose,
+  ModalDialog,
+  Typography,
+} from "@mui/joy";
+import {
+  DEFAULT_SCHEDULED_DAYS,
+  GroceryItem as Task,
+  ScheduledDays,
+} from "../../../services/grocery-service";
 import { MouseEvent, useState } from "react";
 import { CalendarMonth } from "@mui/icons-material";
 import { Calendar } from "./calendar";
 
 interface TaskRowProps {
   task: Task;
+  dates: Date[];
   checkTask: (id: string) => void;
   saveTaskScheduledDays: (id: string, scheduledDays: ScheduledDays) => void;
 }
 
-export function TaskRow({ task, checkTask, saveTaskScheduledDays }: TaskRowProps) {
+export function TaskRow(
+  { task, checkTask, saveTaskScheduledDays, dates }: TaskRowProps,
+) {
   const [calendarOpen, setCalendarOpen] = useState(false);
 
   function handleCalendarClick(e: MouseEvent<HTMLButtonElement>) {
@@ -27,30 +45,37 @@ export function TaskRow({ task, checkTask, saveTaskScheduledDays }: TaskRowProps
         }}
       >
         <ListItemButton
-          sx={{ display: "flex", justifyContent: "space-between", borderRadius: "12px" }}
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            borderRadius: "12px",
+          }}
         >
           <Typography>{task.name}</Typography>
 
-          <Box display='flex' alignItems='center' gap='8px'>
+          <Box display="flex" alignItems="center" gap="8px">
             <IconButton onClick={handleCalendarClick}>
-              <CalendarMonth color='primary' />
+              <CalendarMonth color="primary" />
             </IconButton>
             <Checkbox checked={task.checked} />
           </Box>
         </ListItemButton>
       </ListItem>
-      <Modal open={calendarOpen} onClose={() => {
-        setCalendarOpen(false)
-      }}>
-        <ModalDialog layout='fullscreen'>
+      <Modal
+        open={calendarOpen}
+        onClose={() => {
+          setCalendarOpen(false);
+        }}
+      >
+        <ModalDialog layout="fullscreen">
           <ModalClose />
           <DialogTitle>Schedule task</DialogTitle>
-          <Box width='100%' height='100%' display='flex' alignItems='center'>
-            <Box flex='1'>
+          <Box width="100%" height="100%" display="flex" alignItems="center">
+            <Box flex="1">
               <Calendar
-                initialScheduledDays={task.scheduledDays ?? DEFAULT_SCHEDULED_DAYS}
+                scheduledDates={dates}
                 onSave={(newDays) => {
-                  saveTaskScheduledDays(task.id, newDays)
+                  saveTaskScheduledDays(task.id, newDays);
                   setCalendarOpen(false);
                 }}
               />
@@ -59,6 +84,5 @@ export function TaskRow({ task, checkTask, saveTaskScheduledDays }: TaskRowProps
         </ModalDialog>
       </Modal>
     </>
-  )
+  );
 }
-

@@ -1,15 +1,14 @@
+import { List, ListItem, Sheet, Typography } from "@mui/joy";
 import {
-  List,
-  ListItem,
-  Typography,
-  Sheet,
-} from "@mui/joy";
-import { GroceryItem, LayoutBlock, ScheduledDays } from "../../services/grocery-service";
+  GroceryItem,
+  LayoutBlock,
+  ScheduledDays,
+} from "../../services/grocery-service";
 import { TaskRow } from "./components/task";
 import { GroceryItemRow } from "./components/grocery-item";
 
 enum Values {
-  Unknown = 'unknown'
+  Unknown = "unknown",
 }
 
 const containerStyles = {
@@ -20,11 +19,13 @@ const containerStyles = {
 export function GroceryList({
   groceries,
   layout,
+  schedule,
   checkGroceryItem,
   saveTaskScheduledDays,
 }: {
   groceries: GroceryItem[];
   layout: LayoutBlock[];
+  schedule: { taskId: string; date: string }[];
   checkGroceryItem(id: string): void;
   saveTaskScheduledDays: (id: string, scheduledDays: ScheduledDays) => void;
 }) {
@@ -48,7 +49,7 @@ export function GroceryList({
       {layout.map(({ type, value }) => {
         if (value === Values.Unknown) return null;
 
-        if (type === 'Text') {
+        if (type === "Text") {
           return (
             <ListItem
               sx={{ width: "100%", height: "48px" }}
@@ -64,13 +65,28 @@ export function GroceryList({
           return null;
         }
 
-
-        if (item.kind === 'Grocery') {
-          return <GroceryItemRow key={item.id} groceryItem={item} checkGroceryItem={checkGroceryItem} />
+        if (item.kind === "Grocery") {
+          return (
+            <GroceryItemRow
+              key={item.id}
+              groceryItem={item}
+              checkGroceryItem={checkGroceryItem}
+            />
+          );
         }
 
-        if (item.kind === 'Task') {
-          return <TaskRow key={item.id} task={item} checkTask={checkGroceryItem} saveTaskScheduledDays={saveTaskScheduledDays} />
+        if (item.kind === "Task") {
+          return (
+            <TaskRow
+              key={item.id}
+              task={item}
+              dates={schedule.filter(({ taskId }) => taskId === item.id).map((
+                { date },
+              ) => new Date(date))}
+              checkTask={checkGroceryItem}
+              saveTaskScheduledDays={saveTaskScheduledDays}
+            />
+          );
         }
 
         return item.kind satisfies never;

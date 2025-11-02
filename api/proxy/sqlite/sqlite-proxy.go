@@ -498,12 +498,20 @@ func (db *DB) CreateTaskSchedule(taskId string, dates []string) error {
 		return fmt.Errorf("failed to delete scheduled items: %w", err)
 	}
 
-	for _, date := range dates {
-		_, err := db.Exec("INSERT INTO scheduled_items (task_id, date) VALUES (?, ?)", taskId, date)
-		if err != nil {
-			return fmt.Errorf("failed to scheduled item: %w", err)
-		}
+	placeholders := strings.Repeat("(?, ?),", len(dates))
+	placeholders = placeholders[:len(placeholders)-1]
 
+	args := make([]interface{}, len(dates)*2)
+	for i, date := range dates {
+		args[i*2] = taskId
+		args[i*2+1] = date
+	}
+
+	insertQuery := fmt.Sprintf("INSERT INTO scheduled_items (task_id, date) VALUES %s", placeholders)
+
+	_, insErr := db.Exec(insertQuery, args...)
+	if insErr != nil {
+		return fmt.Errorf("failed to scheduled item: %w", insErr)
 	}
 
 	return nil

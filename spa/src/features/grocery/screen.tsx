@@ -1,5 +1,12 @@
 import { ChangeEvent, useEffect } from "react";
-import { Box, Button, Input, Stack, Typography, TypographyProps } from "@mui/joy";
+import {
+  Box,
+  Button,
+  Input,
+  Stack,
+  Typography,
+  TypographyProps,
+} from "@mui/joy";
 import { FormEvent } from "react";
 import {
   GroceryItemKind,
@@ -13,13 +20,14 @@ import { GroceryList } from "./grocery-list";
 const POLL_INTERVAL = 8000;
 
 interface GroceryScreenProps {
-  mode: GroceryItemKind
+  mode: GroceryItemKind;
   groceryItemText: string;
   isUpdating: boolean;
   householdId: string;
   endIcons: React.ReactNode;
   groceryList: GroceryListModel;
   selectedStores: StoreName[];
+  schedule: { taskId: string; date: string }[];
   setMode: (mode: GroceryItemKind) => void;
   handleGroceryItemTextChange(e: ChangeEvent<HTMLInputElement>): void;
   checkGroceryItem(id: string): void;
@@ -40,6 +48,7 @@ export function GroceryScreen({
   isUpdating,
   endIcons,
   householdId,
+  schedule,
   setMode,
   handleGroceryItemTextChange,
   checkGroceryItem,
@@ -47,7 +56,7 @@ export function GroceryScreen({
   createItem,
   initializeGroceryList,
   fetchGroceries,
-  saveScheduledDays
+  saveScheduledDays,
 }: GroceryScreenProps) {
   useEffect(() => {
     initializeGroceryList(householdId);
@@ -61,18 +70,18 @@ export function GroceryScreen({
   function getTitleProps(kind: GroceryItemKind): Partial<TypographyProps> {
     const baseProps: Partial<TypographyProps> = {
       sx: {
-        cursor: 'pointer',
+        cursor: "pointer",
       },
       style: {},
-      onClick: () => setMode(kind)
-    }
+      onClick: () => setMode(kind),
+    };
 
     if (kind !== mode) {
       baseProps.style!.opacity = 0.6;
       return baseProps;
     }
 
-    baseProps.fontStyle = 'italic';
+    baseProps.fontStyle = "italic";
     return baseProps;
   }
 
@@ -92,8 +101,16 @@ export function GroceryScreen({
             alignItems="center"
           >
             <Box display="flex" gap="8px">
-              <Typography level="h3" color="primary" {...getTitleProps("Grocery")}>Groceries</Typography>
-              <Typography level="h3" color="success" {...getTitleProps("Task")}>Tasks</Typography>
+              <Typography
+                level="h3"
+                color="primary"
+                {...getTitleProps("Grocery")}
+              >
+                Groceries
+              </Typography>
+              <Typography level="h3" color="success" {...getTitleProps("Task")}>
+                Tasks
+              </Typography>
             </Box>
             {endIcons}
           </Box>
@@ -106,7 +123,9 @@ export function GroceryScreen({
             <Input
               value={groceryItemText}
               onChange={handleGroceryItemTextChange}
-              placeholder={mode === "Grocery" ? "Add a grocery item or recipe url!" : "Add some tasks!"}
+              placeholder={mode === "Grocery"
+                ? "Add a grocery item or recipe url!"
+                : "Add some tasks!"}
             />
           </Box>
         </Stack>
@@ -116,6 +135,7 @@ export function GroceryScreen({
             layout={groceryList.layout}
             checkGroceryItem={checkGroceryItem}
             saveTaskScheduledDays={saveScheduledDays}
+            schedule={schedule}
           />
         </Box>
       </Stack>

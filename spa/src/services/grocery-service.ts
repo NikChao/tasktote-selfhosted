@@ -16,7 +16,7 @@ export const MONTHS = {
   "DEC": { days: 31 },
 };
 
-export const DEFAULT_SCHEDULED_DAYS = {
+export const DEFAULT_SCHEDULED_DAYS: ScheduledDays = {
   "JAN": [],
   "FEB": [],
   "MAR": [],
@@ -45,7 +45,6 @@ export interface GroceryItem {
   name: string;
   kind: GroceryItemKind;
   checked: boolean;
-  scheduledDays?: ScheduledDays;
 }
 
 type LayoutBlockType = "GroceryItemId" | "Text";
@@ -67,6 +66,7 @@ export interface GroceryMagicRequest {
 
 export interface GroceryMagicResponse {
   groceryList: GroceryList;
+  schedule: { taskId: string; date: string }[];
 }
 
 export interface BatchDeleteGroceryItemsRequest {

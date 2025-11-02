@@ -21,6 +21,7 @@ export class GroceryListStore {
   magicEnabled = true;
   groceryItemText: string = "";
   groceryList: GroceryList = { items: [], layout: [] };
+  schedule: { taskId: string; date: string }[] = [];
   selectedStores: StoreName[] = [];
 
   constructor(
@@ -64,17 +65,15 @@ export class GroceryListStore {
       this.isFetching = true;
       let groceryList = await this.groceryService.getGroceryList(householdId);
 
-      if (this.magicEnabled) {
-        groceryList = (
-          await this.groceryService.magic(
-            householdId,
-            groceryList,
-            this.selectedStores,
-          )
-        ).groceryList;
-      }
+      const result = await this.groceryService.magic(
+        householdId,
+        groceryList,
+        this.selectedStores,
+      );
+      groceryList = result.groceryList;
 
       this.groceryList = groceryList;
+      this.schedule = result.schedule;
     } finally {
       this.isFetching = false;
     }
@@ -188,27 +187,16 @@ export class GroceryListStore {
     this.fetchGroceryList(this.userStore.effectiveHouseholdId);
   };
 
-  saveTaskScheduledDays = action((id: string, scheduledDays: ScheduledDays) => {
+  saveTaskScheduledDays = async (id: string, scheduledDays: ScheduledDays) => {
     const currentYear = new Date().getFullYear();
 
     const dates: string[] = Object.entries(scheduledDays).flatMap((entry) => {
       const [month, days] = entry;
       return days.map((day) => {
-        return new Date(`${day + 1}/${month}/${currentYear}`).toISOString();
+        return new Date(`${day}/${month}/${currentYear}`).toISOString();
       });
     });
 
-    this.groceryService.scheduleTask(id, dates);
-
-    this.groceryList = {
-      ...this.groceryList,
-      items: this.groceryList.items.map((item) => {
-        if (item.kind === "Task" && item.id === id) {
-          item.scheduledDays = scheduledDays;
-        }
-
-        return item;
-      }),
-    };
-  });
+    await this.groceryService.scheduleTask(id, dates);
+  };
 }
